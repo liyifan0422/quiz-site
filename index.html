@@ -616,7 +616,7 @@ function buildQuestionHTML(q, mode) {
       ${inputHtml}
       <div class="feedback" id="feedback"></div>
     </div>
-    <button class="next-btn" id="nextBtn" onclick="nextQuestion('${mode}')">下一题 →</button>
+    <button class="next-btn" id="nextBtn" data-mode="${mode}">下一题 →</button>
   `;
 }
 
@@ -725,6 +725,14 @@ document.querySelectorAll('.filter-btn').forEach(btn=>{
     pState.filter=this.dataset.filter;
     initPractice();
   });
+});
+
+// ==================== 事件委托：下一题按钮 ====================
+document.body.addEventListener('click', function(e) {
+  const btn = e.target.closest('#nextBtn');
+  if (!btn) return;
+  const mode = btn.dataset.mode;
+  nextQuestion(mode);
 });
 
 // ==================== 初始化 ====================
