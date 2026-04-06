@@ -595,12 +595,12 @@ function buildQuestionHTML(q, mode) {
     inputHtml = `<div class="essay-area">
       <textarea class="essay-textarea" id="essayInput" placeholder="请先自己作答，写下你的答案..."></textarea>
       <div class="essay-btns">
-        <button class="show-answer-btn" onclick="showEssayAnswer(this,'${mode}')">💡 查看参考答案</button>
+        <button class="show-answer-btn" data-action="show-answer" data-mode="${mode}">💡 查看参考答案</button>
       </div>
       <div class="answer-box" id="essayBox">${q.answer.replace(/\n/g,'<br>')}</div>
       <div class="self-judge" id="selfJudge">
-        <button class="self-btn self-correct" onclick="selfScore(true,'${mode}')">✅ 我答出来了</button>
-        <button class="self-btn self-wrong" onclick="selfScore(false,'${mode}')">❌ 我没答出来</button>
+        <button class="self-btn self-correct" data-action="self-correct" data-mode="${mode}">✅ 我答出来了</button>
+        <button class="self-btn self-wrong" data-action="self-wrong" data-mode="${mode}">❌ 我没答出来</button>
       </div>
     </div>`;
   }
@@ -688,7 +688,8 @@ function submitFill(mode) {
 function showEssayAnswer(btn, mode) {
   document.getElementById('essayBox').classList.add('visible');
   document.getElementById('selfJudge').classList.add('visible');
-  btn.style.display='none';
+  const showBtn = document.querySelector('[data-action="show-answer"]');
+  if (showBtn) showBtn.style.display='none';
 }
 
 function selfScore(correct, mode) {
@@ -727,12 +728,16 @@ document.querySelectorAll('.filter-btn').forEach(btn=>{
   });
 });
 
-// ==================== 事件委托：下一题按钮 ====================
+// ==================== 事件委托：所有动态按钮 ====================
 document.body.addEventListener('click', function(e) {
-  const btn = e.target.closest('#nextBtn');
+  const btn = e.target.closest('[data-action], #nextBtn');
   if (!btn) return;
   const mode = btn.dataset.mode;
-  nextQuestion(mode);
+  const action = btn.dataset.action || (btn.id === 'nextBtn' ? 'next' : null);
+  if (action === 'next') { nextQuestion(mode); return; }
+  if (action === 'show-answer') { showEssayAnswer(btn, mode); return; }
+  if (action === 'self-correct') { selfScore(true, mode); return; }
+  if (action === 'self-wrong') { selfScore(false, mode); return; }
 });
 
 // ==================== 初始化 ====================
