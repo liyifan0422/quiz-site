@@ -8,6 +8,19 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif; background: #f0f4f8; min-height: 100vh; }
 
+/* Gate */
+.gate-wrap { position: fixed; inset: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 24px; }
+.gate-box { background: white; border-radius: 20px; padding: 32px 24px; width: 100%; max-width: 360px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+.gate-box .gate-icon { font-size: 48px; margin-bottom: 12px; }
+.gate-box h2 { font-size: 18px; color: #2d3748; margin-bottom: 6px; }
+.gate-box .gate-q { font-size: 15px; color: #4a5568; margin: 16px 0 12px; line-height: 1.6; background: #f7fafc; border-radius: 10px; padding: 12px 16px; }
+.gate-input { width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; outline: none; margin-bottom: 12px; text-align: center; transition: border-color 0.2s; }
+.gate-input:focus { border-color: #667eea; }
+.gate-input.shake { animation: shake 0.4s; border-color: #e53e3e; }
+.gate-btn { width: 100%; padding: 13px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; }
+.gate-err { font-size: 13px; color: #e53e3e; margin-top: 8px; min-height: 18px; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} }
+
 /* Header */
 .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px 20px; text-align: center; }
 .header h1 { font-size: 18px; font-weight: 700; }
@@ -145,6 +158,18 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif
 </style>
 </head>
 <body>
+
+<!-- 登录门 -->
+<div class="gate-wrap" id="gate">
+  <div class="gate-box">
+    <div class="gate-icon">🔐</div>
+    <h2>验证身份</h2>
+    <div class="gate-q">人文组吴彦祖是谁？</div>
+    <input class="gate-input" id="gateInput" type="text" placeholder="请输入答案..." maxlength="20">
+    <button class="gate-btn" id="gateBtn">进入</button>
+    <div class="gate-err" id="gateErr"></div>
+  </div>
+</div>
 
 <div class="header">
   <h1>📚 市场功底测刷题系统</h1>
@@ -739,6 +764,35 @@ document.body.addEventListener('click', function(e) {
   if (action === 'self-correct') { selfScore(true, mode); return; }
   if (action === 'self-wrong') { selfScore(false, mode); return; }
 });
+
+// ==================== 登录门 ====================
+(function() {
+  const gate = document.getElementById('gate');
+  const input = document.getElementById('gateInput');
+  const btn = document.getElementById('gateBtn');
+  const err = document.getElementById('gateErr');
+  const ANSWER = '李祎璠';
+
+  if (sessionStorage.getItem('quizAuthed') === '1') {
+    gate.style.display = 'none';
+  }
+
+  function tryEnter() {
+    const val = input.value.trim();
+    if (val === ANSWER) {
+      sessionStorage.setItem('quizAuthed', '1');
+      gate.style.display = 'none';
+    } else {
+      err.textContent = '答案不对，再想想 🤔';
+      input.classList.add('shake');
+      input.value = '';
+      setTimeout(() => input.classList.remove('shake'), 500);
+    }
+  }
+
+  btn.addEventListener('click', tryEnter);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') tryEnter(); });
+})();
 
 // ==================== 初始化 ====================
 switchTab('home');
