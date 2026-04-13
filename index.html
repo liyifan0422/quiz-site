@@ -650,9 +650,9 @@ function buildQuestionHTML(q, mode) {
       </div>
       <div class="q-text">${q.q}</div>
       ${inputHtml}
-      <div class="feedback" id="feedback"></div>
+      <div class="feedback" data-fb="${mode}"></div>
     </div>
-    <button class="next-btn" id="nextBtn" data-action="next" data-mode="${mode}">下一题 →</button>
+    <button class="next-btn" data-action="next" data-mode="${mode}">下一题 →</button>
   `;
 }
 
@@ -663,12 +663,14 @@ function chapterLabel(c){return{ch1:'第一章·学情',ch2:'第二章·产品',
 function getState(mode){ return mode==='practice'?pState:mode==='exam'?eState:wrongState; }
 
 function showFeedback(correct, explanation, qid, mode) {
-  const fb = document.getElementById('feedback');
-  fb.className=`feedback visible ${correct?'correct-fb':'wrong-fb'}`;
-  fb.innerHTML=`<div class="feedback-label">${correct?'✅ 回答正确！':'❌ 回答错误'}</div><div class="explanation">📖 解析：${explanation}</div>`;
+  const fb = document.querySelector(`.feedback[data-fb="${mode}"]`);
+  if(fb){
+    fb.className=`feedback visible ${correct?'correct-fb':'wrong-fb'}`;
+    fb.innerHTML=`<div class="feedback-label">${correct?'✅ 回答正确！':'❌ 回答错误'}</div><div class="explanation">📖 解析：${explanation}</div>`;
+  }
   if(!correct) addToWrongBook(qid);
-  else if(mode==='wrong') removeFromWrongBook(qid); // 错题答对了就移出
-  const nb=document.getElementById('nextBtn');
+  else if(mode==='wrong') removeFromWrongBook(qid);
+  const nb = document.querySelector(`.next-btn[data-mode="${mode}"]`);
   if(nb) nb.classList.add('visible');
   window.scrollTo(0, document.body.scrollHeight);
 }
