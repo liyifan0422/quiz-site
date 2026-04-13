@@ -633,7 +633,7 @@ function buildQuestionHTML(q, mode) {
   } else if (q.type==='fill') {
     inputHtml = `<div class="fill-area">
       <input type="text" class="fill-input" id="fillInput" placeholder="请输入答案...">
-      <button class="fill-submit" onclick="submitFill('${mode}')">提交答案</button>
+      <button class="fill-submit" data-action="submit-fill" data-mode="${mode}">提交答案</button>
     </div>`;
   } else if (q.type==='multi') {
     inputHtml = `<div class="options" id="multiOptions">${q.options.map((opt,i)=>`<button class="option-btn" data-idx="${i}" onclick="toggleMulti(this)">${opt}</button>`).join('')}</div>
@@ -781,6 +781,7 @@ document.body.addEventListener('click', function(e) {
   const action = btn.dataset.action || (btn.id === 'nextBtn' ? 'next' : null);
   if (action === 'next') { nextQuestion(mode); return; }
   if (action === 'submit-multi') { submitMulti(mode); return; }
+  if (action === 'submit-fill') { submitFill(mode); return; }
 });
 
 // ==================== 登录门 ====================
