@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>市场功底测刷题系统</title>
+<title>市场功底测刷题系统 v4</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif; background: #f0f4f8; min-height: 100vh; }
@@ -164,7 +164,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif
 
 <div class="header">
   <h1>📚 市场功底测刷题系统</h1>
-  <p>2026年上小学市场 · 备考必胜</p>
+  <p>2026年上小学市场 · 备考必胜 · v4</p>
 </div>
 
 <!-- Mode Tabs -->
@@ -215,10 +215,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif
 <div id="page-practice" style="display:none;">
   <div class="filter-bar" id="filterBar">
     <button class="filter-btn active" data-filter="all">全部</button>
-    <button class="filter-btn" data-filter="ch1">第一章·学情</button>
-    <button class="filter-btn" data-filter="ch2">第二章·产品价格</button>
-    <button class="filter-btn" data-filter="ch3">第三章·亮点功能</button>
-    <button class="filter-btn" data-filter="ch4">第四章·竞品</button>
+    <button class="filter-btn" data-filter="ch1">第一章</button>
+    <button class="filter-btn" data-filter="ch2">第二章</button>
+    <button class="filter-btn" data-filter="ch3">第三章</button>
+    <button class="filter-btn" data-filter="ch4">第四章</button>
+    <button class="filter-btn" data-filter="single">单选题</button>
+    <button class="filter-btn" data-filter="multi">多选题</button>
+    <button class="filter-btn" data-filter="fill">填空题</button>
+    <button class="filter-btn" data-filter="judge">判断题</button>
   </div>
   <div class="progress-bar">
     <div class="progress-info">
@@ -394,6 +398,29 @@ const QUESTIONS = [
   {id:75,chapter:'ch3',type:'single',q:'"阅读金字塔"提升阅读能力最根本的3步是什么？',options:['A. 听说读写、词汇积累、语法学习','B. 阅读量、学方法、刷题型','C. 精读、泛读、速读','D. 词汇、句型、篇章'],answer:1,explanation:'"阅读金字塔"3步：阅读量→学方法→刷题型。'},
   {id:76,chapter:'ch3',type:'judge',q:'新思维"思维小老师"是学完一节课后APP内录制表达视频，复述总结时使用。',answer:true,explanation:'正确。思维小老师：学完一节课后APP内录制表达视频，解决与课程主题相关问题，加深巩固。'},
 
+  // ===== 第一章 多选题补充 =====
+  {id:101,chapter:'ch1',type:'multi',q:'2026春季考试新政，下列哪些说法正确？（多选）',options:['A. 小学一二年级不组织任何纸笔考试','B. 其他年级每学期仅1次期末考试','C. 必须依据课标命题，增加应用性探究性试题','D. 三年级也不需要期末考试'],answers:[0,1,2],explanation:'2026春起：①一二年级不组织纸笔考试；②其他年级每学期仅1次期末考试；③必须依据课标命题增加应用性探究性试题。三年级仍有期末考试，D错。'},
+  {id:102,chapter:'ch1',type:'multi',q:'数学新教材的4个变化特点是？（多选）',options:['A. 新增综合实践单元，突出项目式学习','B. 注重知识本质的学习','C. 注重过程的探究与考察','D. 注重真实情景与跨学科学习'],answers:[0,1,2,3],explanation:'数学新教材4个特点全部正确：①新增综合实践单元；②注重知识本质；③注重过程探究与考察；④注重真实情景与跨学科学习。'},
+  {id:103,chapter:'ch1',type:'multi',q:'造成"三年级陷阱"的原因有哪些？（多选）',options:['A. 知识点增多、难度变大','B. 考题综合性变强、坑点变多','C. 一二年级无书面考试，问题未暴露','D. 三年级老师教得差'],answers:[0,1,2],explanation:'三年级陷阱三个原因：①知识点增多难度变大；②考题综合性变强坑点变多；③一二年级无书面考试问题未暴露。D不是原因。'},
+  {id:104,chapter:'ch1',type:'multi',q:'2022版英语课标相比2011版，主要变化有哪些？（多选）',options:['A. 自然拼读成为必学内容，小学不学音标','B. 词汇量从423个增加到505个','C. 英语课时占比从6%~8%提高到20%','D. 更强调在语篇中理解和应用词汇'],answers:[0,1,3],explanation:'2022版英语课标变化：①自然拼读必学不学音标；②词汇从423→505个；③更强调语篇中理解应用。英语课时占比仍是6%~8%，未提高，C错。'},
+
+  // ===== 第二章 多选题补充 =====
+  {id:105,chapter:'ch2',type:'multi',q:'关于英语卓越线，下列说法正确的是？（多选）',options:['A. 面向1起或1~2年级提前启蒙的学生','B. 要求校内成绩90分以上','C. 始终超前校内半年','D. 定位是将"良"者培养成"优"者'],answers:[0,1,2],explanation:'卓越线：①面向1起或1~2年级提前启蒙；②校内90分以上；③始终超前校内半年（如卓越L2三年级学完达四年级上水平）。D是全能线的定位，不是卓越线。'},
+  {id:106,chapter:'ch2',type:'multi',q:'关于新人文系统班L1~L6课时长度，正确的是？（多选）',options:['A. L1：70分钟2课时','B. L2：95分钟3课时（每课时25分）','C. L3~L6：110分钟3课时（每课时30分）','D. L3~L6：120分钟4课时'],answers:[0,1,2],explanation:'新人文课时：L1→70分钟2课时；L2→95分钟3课时每课时25分；L3~L6→110分钟3课时每课时30分。D错误。'},
+  {id:107,chapter:'ch2',type:'multi',q:'下列数学产品价格，哪些是正确的？（多选）',options:['A. 数学L1实付1790元','B. 数学L2~L6短+长联报实付2880元','C. 数学L2~L6短+长联报原价4140元','D. 数学L1原价1790元'],answers:[0,1,2],explanation:'L1实付1790（原价2880，券1090）；L2~L6短+长联报原价4140，实付2880（券1260）。D错，L1原价是2880，不是1790。'},
+  {id:108,chapter:'ch2',type:'multi',q:'下列英语产品价格，哪些是正确的？（多选）',options:['A. 英语单春实付2380元（原价2880，券500）','B. 英语寒春联报实付2880元（原价4140，券1260）','C. 英语单春实付2880元','D. 语文新人文素养全季16周价格2880元'],answers:[0,1,3],explanation:'英语单春实付2380（原价2880，券500）；寒春联报实付2880（原价4140，券1260）；语文新人文素养16周2880元。C错，单春是2380不是2880。'},
+
+  // ===== 第三章 多选题补充 =====
+  {id:109,chapter:'ch3',type:'multi',q:'新思维五步教学法包含哪些步骤？（多选）',options:['A. 问题来了','B. 趣体验','C. 思维来了','D. 趣迁移'],answers:[0,1,2,3],explanation:'新思维五步（全选）：①问题来了→②趣体验→③思维来了→④趣迁移→⑤趣应用（第五步趣应用未在选项中）。'},
+  {id:110,chapter:'ch3',type:'multi',q:'"猿小助"课堂监督识别的走神行为包括？（多选）',options:['A. 未开摄像头','B. 离设备太近','C. 离开摄像头','D. 切出后台或离线'],answers:[0,1,2,3],explanation:'"猿小助"识别5种走神行为：未开摄像头、离设备太近、离开摄像头、切出后台、离线。四个选项全部正确。'},
+  {id:111,chapter:'ch3',type:'multi',q:'新人文读写闭环覆盖哪些场景？（多选）',options:['A. 单元习作','B. 考场作文','C. 阅读微创作','D. 数学应用题'],answers:[0,1,2],explanation:'读写闭环100%覆盖：单元习作、考场作文、阅读微创作三类场景。数学应用题不在范围内。'},
+  {id:112,chapter:'ch3',type:'multi',q:'新双语"AI个性化闭环训练"包含哪些功能？（多选）',options:['A. AI纠音+口语模考','B. 个性化题集查漏补缺','C. 斩词王记单词','D. 智能写作批改+AI对话练习'],answers:[0,1,2,3],explanation:'AI个性化闭环训练包含：AI纠音+口语模考、个性化题集查漏补缺、斩词王记单词、智能写作批改+AI对话练习，全部正确。'},
+
+  // ===== 第四章 多选题补充 =====
+  {id:113,chapter:'ch4',type:'multi',q:'新人文相比线下小班课的优势有哪些？（多选）',options:['A. 上课更灵活（线上+回放）','B. 师资更优质','C. AI技术全程赋能','D. 素材题目实时更新'],answers:[0,1,2,3],explanation:'新人文vs线下小班课4大优势全部正确：①上课灵活②师资优质③AI赋能④素材实时更新。'},
+  {id:114,chapter:'ch4',type:'multi',q:'关于竞品数学单课时价格，正确的是？（多选）',options:['A. 作业帮1~2年级单课时27.59元','B. 作业帮3~6年级单课时21.98元','C. 希望学X年级单课时26.92元','D. 鲸鱼小班单课时约49.97元'],answers:[0,1,2,3],explanation:'竞品单课时价格全部正确：作业帮1~2年级27.59元；3~6年级21.98元；希望学26.92元；鲸鱼小班49.97元。'},
+  {id:115,chapter:'ch4',type:'multi',q:'新人文相比学科类竞品（作业帮等）的优势有哪些？（多选）',options:['A. 底层能力培养+全科反哺','B. 教学更灵活（多元素材库避免同质化）','C. 服务更精细（作文两轮以上批改）','D. 价格比作业帮更低'],answers:[0,1,2],explanation:'新人文vs学科类竞品4大优势：①底层能力+全科反哺；②教学更灵活；③服务更精细；④趣味性更高。价格不是优势，D错。'},
+
   // ===== 第四章：竞品分析 =====
   {id:77,chapter:'ch4',type:'single',q:'相比素养类竞品（学而思人文创作、豆伴匠等），新人文核心优势是？',options:['A. 价格更低','B. 应试+素养双兼顾，写作方法落地，适配性更优','C. 课时更长','D. 名师更多'],answer:1,explanation:'新人文vs素养类竞品3大优势：①应试+素养双兼顾；②写作方法落地（AI带写+当堂成篇）；③适配性更优（分级）。'},
   {id:78,chapter:'ch4',type:'single',q:'相比学科类竞品（作业帮等），新人文的优势不包含？',options:['A. 底层能力+全科反哺','B. 教学更灵活（多元素材库，避免同质化）','C. 服务更精细（作文两轮以上批改）','D. 价格更低'],answer:3,explanation:'新人文vs学科类竞品4大优势：①底层能力+全科反哺；②教学更灵活；③服务更精细；④趣味性更高。价格不是优势。'},
@@ -460,8 +487,12 @@ function shuffle(arr) {
   return arr;
 }
 
+const TYPE_FILTERS = ['single','multi','fill','judge'];
 function initPractice() {
-  let qs = pState.filter==='all' ? [...QUESTIONS] : QUESTIONS.filter(q=>q.chapter===pState.filter);
+  const f = pState.filter;
+  let qs = f==='all' ? [...QUESTIONS]
+    : TYPE_FILTERS.includes(f) ? QUESTIONS.filter(q=>q.type===f)
+    : QUESTIONS.filter(q=>q.chapter===f);
   pState.questions = shuffle(qs);
   pState.currentIndex = 0; pState.score = 0; pState.total = pState.questions.length;
   pState.answered = false; pState.sessionWrong = [];
