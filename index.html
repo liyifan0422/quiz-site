@@ -624,11 +624,11 @@ function showWrongSummary() {
 function buildQuestionHTML(q, mode) {
   let inputHtml = '';
   if (q.type==='single') {
-    inputHtml = `<div class="options">${q.options.map((opt,i)=>`<button class="option-btn" onclick="answerSingle(this,${i},'${mode}')">${opt}</button>`).join('')}</div>`;
+    inputHtml = `<div class="options">${q.options.map((opt,i)=>`<button class="option-btn" data-action="answer-single" data-idx="${i}" data-mode="${mode}">${opt}</button>`).join('')}</div>`;
   } else if (q.type==='judge') {
     inputHtml = `<div class="judge-btns">
-      <button class="judge-btn" onclick="answerJudge(this,true,'${mode}')">✅ 正确</button>
-      <button class="judge-btn" onclick="answerJudge(this,false,'${mode}')">❌ 错误</button>
+      <button class="judge-btn" data-action="answer-judge" data-val="true" data-mode="${mode}">✅ 正确</button>
+      <button class="judge-btn" data-action="answer-judge" data-val="false" data-mode="${mode}">❌ 错误</button>
     </div>`;
   } else if (q.type==='fill') {
     inputHtml = `<div class="fill-area">
@@ -636,7 +636,7 @@ function buildQuestionHTML(q, mode) {
       <button class="fill-submit" data-action="submit-fill" data-mode="${mode}">提交答案</button>
     </div>`;
   } else if (q.type==='multi') {
-    inputHtml = `<div class="options" id="multiOptions">${q.options.map((opt,i)=>`<button class="option-btn" data-idx="${i}" onclick="toggleMulti(this)">${opt}</button>`).join('')}</div>
+    inputHtml = `<div class="options" id="multiOptions">${q.options.map((opt,i)=>`<button class="option-btn" data-action="toggle-multi" data-idx="${i}">${opt}</button>`).join('')}</div>
       <div class="multi-hint">多选题：请选择所有正确答案</div>
       <button class="multi-submit" data-action="submit-multi" data-mode="${mode}">提交答案</button>`;
   }
@@ -652,7 +652,7 @@ function buildQuestionHTML(q, mode) {
       ${inputHtml}
       <div class="feedback" id="feedback"></div>
     </div>
-    <button class="next-btn" id="nextBtn" data-mode="${mode}">下一题 →</button>
+    <button class="next-btn" id="nextBtn" data-action="next" data-mode="${mode}">下一题 →</button>
   `;
 }
 
@@ -674,9 +674,6 @@ function showFeedback(correct, explanation, qid, mode) {
 }
 
 function toggleMulti(btn) {
-  const st = btn.closest('.options');
-  if (!st) return;
-  // 如果已提交则不能再点
   const submitBtn = document.querySelector('.multi-submit');
   if (submitBtn && submitBtn.disabled) return;
   btn.classList.toggle('selected');
@@ -775,13 +772,16 @@ document.querySelectorAll('.filter-btn').forEach(btn=>{
 
 // ==================== 事件委托：所有动态按钮 ====================
 document.body.addEventListener('click', function(e) {
-  const btn = e.target.closest('[data-action], #nextBtn');
+  const btn = e.target.closest('[data-action]');
   if (!btn) return;
   const mode = btn.dataset.mode;
-  const action = btn.dataset.action || (btn.id === 'nextBtn' ? 'next' : null);
+  const action = btn.dataset.action;
   if (action === 'next') { nextQuestion(mode); return; }
-  if (action === 'submit-multi') { submitMulti(mode); return; }
   if (action === 'submit-fill') { submitFill(mode); return; }
+  if (action === 'submit-multi') { submitMulti(mode); return; }
+  if (action === 'toggle-multi') { toggleMulti(btn); return; }
+  if (action === 'answer-single') { answerSingle(btn, parseInt(btn.dataset.idx), mode); return; }
+  if (action === 'answer-judge') { answerJudge(btn, btn.dataset.val === 'true', mode); return; }
 });
 
 // ==================== 登录门 ====================
