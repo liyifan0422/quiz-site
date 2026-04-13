@@ -54,7 +54,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif
 .tag-single { background: #ebf4ff; color: #3182ce; }
 .tag-judge { background: #f0fff4; color: #38a169; }
 .tag-fill { background: #fffaf0; color: #dd6b20; }
-.tag-essay { background: #faf5ff; color: #805ad5; }
+.tag-multi { background: #faf5ff; color: #805ad5; }
 .tag-chapter { background: #f7fafc; color: #718096; }
 .tag-wrong { background: #fff5f5; color: #e53e3e; }
 .q-text { font-size: 16px; line-height: 1.7; color: #2d3748; font-weight: 500; }
@@ -86,22 +86,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif
 .fill-submit:hover { background: #5a67d8; }
 .fill-submit:disabled { background: #a0aec0; cursor: default; }
 
-/* Essay */
-.essay-area { margin-top: 16px; }
-.essay-textarea { width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; resize: vertical; min-height: 100px; font-family: inherit; line-height: 1.6; transition: border-color 0.2s; }
-.essay-textarea:focus { border-color: #667eea; }
-.essay-btns { display: flex; gap: 10px; margin-top: 10px; }
-.show-answer-btn { flex: 1; padding: 12px; background: #667eea; color: white; border: none; border-radius: 10px; font-size: 14px; cursor: pointer; font-weight: 600; }
-.answer-box { background: #f7fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 14px; font-size: 14px; line-height: 1.7; color: #4a5568; margin-top: 10px; display: none; }
-.answer-box.visible { display: block; }
-.self-judge { display: none; margin-top: 10px; gap: 10px; }
-.self-judge.visible { display: flex; }
-.self-btn { flex: 1; padding: 12px; border-radius: 10px; border: 2px solid; font-size: 14px; cursor: pointer; font-weight: 600; background: white; }
-.self-correct { border-color: #38a169; color: #38a169; }
-.self-correct:hover:not(:disabled) { background: #f0fff4; }
-.self-wrong { border-color: #e53e3e; color: #e53e3e; }
-.self-wrong:hover:not(:disabled) { background: #fff5f5; }
-.self-btn:disabled { cursor: default; opacity: 0.6; }
+/* Multi-select */
+.multi-hint { margin-top: 10px; font-size: 12px; color: #805ad5; background: #faf5ff; border-radius: 8px; padding: 6px 12px; display: inline-block; }
+.option-btn.selected { border-color: #805ad5; background: #faf5ff; color: #553c9a; font-weight: 600; }
+.option-btn.selected:hover:not(:disabled) { border-color: #805ad5; background: #faf5ff; color: #553c9a; }
+.multi-submit { margin-top: 12px; width: 100%; padding: 12px; background: #805ad5; color: white; border: none; border-radius: 10px; font-size: 15px; cursor: pointer; font-weight: 600; transition: background 0.2s; }
+.multi-submit:hover { background: #6b46c1; }
+.multi-submit:disabled { background: #a0aec0; cursor: default; }
 
 /* Feedback */
 .feedback { margin-top: 14px; padding: 12px 16px; border-radius: 10px; font-size: 14px; line-height: 1.6; display: none; }
@@ -353,7 +344,7 @@ const QUESTIONS = [
   {id:28,chapter:'ch1',type:'single',q:'2011版英语课标二级词汇是多少个？2022版是多少个？',options:['A. 2011版423个，2022版505个','B. 2011版500个，2022版423个','C. 两版都是500个','D. 2011版300个，2022版600个'],answer:0,explanation:'2011版二级词汇423个，2022版收录505个，还可接触100~300词+习惯用语。'},
   {id:29,chapter:'ch1',type:'fill',q:'英语学习语言关键期（黄金期）是几岁到几岁？',answers:['3~7岁','3到7岁','3-7岁'],explanation:'3~7岁为语言关键期/敏感期，是培养英语语音语感和口语表达的最佳时机。'},
   {id:30,chapter:'ch1',type:'single',q:'英语学习黄金期是几岁？',options:['A. 0~3岁','B. 3~7岁','C. 5~10岁','D. 6~12岁'],answer:1,explanation:'3~7岁为语言关键期、敏感期，越早学越适合，越坚持越优秀。'},
-  {id:31,chapter:'ch1',type:'essay',q:'请分别说明英语低年级（1~2年级）、中年级（3~4年级）、高年级（5~6年级）的高频需求。',answer:'低年级（1~2年级）：掌握自然拼读方法、扩充词汇量、标准朗读\n\n中年级（3~4年级）：用自拼学好校内词、发音标准流利断句、扩充词汇量、语法阅读\n\n高年级（5~6年级）：学好语法、阅读和写作',explanation:'了解各年级需求是精准推荐产品的基础。'},
+  {id:31,chapter:'ch1',type:'multi',q:'下列哪些是英语高年级（5~6年级）的高频需求？（多选）',options:['A. 掌握自然拼读方法','B. 学好语法','C. 阅读和写作','D. 只需扩充词汇量'],answers:[1,2],explanation:'高年级（5~6年级）高频需求：学好语法、阅读和写作。低年级需求为自然拼读+词汇+朗读，中年级需求为自拼校内词+发音+语法阅读。'},
 
   // ===== 第二章：产品线、课设、价格 =====
   {id:32,chapter:'ch2',type:'single',q:'新人文系统班覆盖哪几个年级？服务哪类学生？',options:['A. 1~6年级，校内成绩85分以上','B. 3~6年级，校内成绩80分以上','C. 1~6年级，校内成绩75分以上','D. 2~6年级，校内成绩90分以上'],answer:0,explanation:'新人文系统班覆盖1~6年级，服务校内成绩85分以上的用户。'},
@@ -382,10 +373,10 @@ const QUESTIONS = [
   {id:55,chapter:'ch2',type:'single',q:'卓越Level 3~6课程时长是多少分钟？',options:['A. 70分钟','B. 95分钟','C. 110分钟','D. 120分钟'],answer:2,explanation:'卓越L3~L6课程时长110分钟（30+10+30+10+30）。'},
   {id:56,chapter:'ch2',type:'single',q:'新思维数学1年级转化策略（RBS+创新联报）券后价格是？',options:['A. 2880元','B. 2380元','C. 1980元','D. 1790元'],answer:2,explanation:'1年级RBS+创新：转化【1春K2+2暑】券后1980元；2~5年级RBS：券后2380元；6年级RBS：【6春K2】券后1420元。'},
   {id:57,chapter:'ch2',type:'fill',q:'英语全能线校内3年级对应哪个产品？',answers:['全能3级','全能班3级'],explanation:'校内3年级→校内提分→全能3级；需超前+剑桥→卓越L2（需测试）。'},
-  {id:58,chapter:'ch2',type:'essay',q:'请说出新思维数学创新班、R版、B版、S版的星级、教材版本和适合学生。',answer:'【创新班】6星级，通用版，适合课内无忧，课内30%+思维70%\n【R版】5星级，人教版，课内掌握60%以上，课内70%+思维30%\n【B版】5星级，北师大版，适合学生同R版\n【S版】5星级，苏教版，适合学生同R版\n【上海专属版】5星级，沪教版，适合学生同R版',explanation:'区分各版本是销售中重要的匹配依据。'},
+  {id:58,chapter:'ch2',type:'multi',q:'关于新思维数学各版本，下列说法正确的是？（多选）',options:['A. 创新班是6星级通用版，课内30%+思维70%','B. R版是5星级适用人教版','C. B版适用苏教版，S版适用北师大版','D. 上海专属版适用沪教版，5星级'],answers:[0,1,3],explanation:'创新班6星级通用版（课内30%+思维70%）；R版5星级人教版；B版5星级北师大版；S版5星级苏教版；上海专属版5星级沪教版。C选项B/S版对应颠倒，错误。'},
 
   // ===== 第三章：产品亮点功能 =====
-  {id:59,chapter:'ch3',type:'essay',q:'请说出新人文的4大产品亮点（关键词即可）。',answer:'①最全面｜全方位覆盖学习需求，直击新课标核心\n②最高效｜读写闭环突破，当堂成精彩文\n③能力最底层｜全科通用能力，一科强带全科优\n④最省心｜AI深度赋能+三师课堂，家长不操心',explanation:'4大亮点：最全面、最高效、能力最底层、最省心。'},
+  {id:59,chapter:'ch3',type:'multi',q:'新人文的4大产品亮点是哪四项？（多选）',options:['A. 最全面', 'B. 最高效', 'C. 能力最底层', 'D. 最省心'],answers:[0,1,2,3],explanation:'新人文4大亮点：①最全面（全方位覆盖新课标）②最高效（读写闭环当堂成文）③能力最底层（全科通用能力）④最省心（AI深度赋能+三师课堂）。'},
   {id:60,chapter:'ch3',type:'single',q:'新人文"读写闭环"的三个环节是什么？',options:['A. 预习→课中→复习','B. 课前预演素材→课中老师带写→课后多轮批改','C. 听课→练习→考试','D. 阅读→理解→写作'],answer:1,explanation:'读写闭环：课前预演素材→课中老师带写→课后多轮批改，100%覆盖单元习作、考场作文、阅读微创作。'},
   {id:61,chapter:'ch3',type:'fill',q:'新人文读写闭环的第一步是什么？',answers:['课前预演素材','预演素材'],explanation:'读写闭环三步：课前预演素材→课中老师带写→课后多轮批改。'},
   {id:62,chapter:'ch3',type:'judge',q:'新人文"AI预习"是在作文课前对话AI，引导学生说出个性化素材，由AI整理，课上展示。',answer:true,explanation:'正确。AI预习：课前对话AI引导学生说出个性化素材，AI完成整理，课上当堂展示。'},
@@ -397,7 +388,7 @@ const QUESTIONS = [
   {id:68,chapter:'ch3',type:'fill',q:'"猿小助"今日挑战完成后可获得多少金币？',answers:['10~20个','10-20个','10到20个'],explanation:'"今日挑战"完成后可获10~20个金币。'},
   {id:69,chapter:'ch3',type:'single',q:'"猿小助"课堂监督会识别哪些走神行为？',options:['A. 未开摄像头、离设备太近、离开摄像头、切出后台、离线','B. 睡觉、玩手机、说话','C. 只识别是否开摄像头','D. 未开摄像头、走动、大声说话'],answer:0,explanation:'"猿小助"识别：未开摄像头、离设备太近、离开摄像头、切出后台、离线。'},
   {id:70,chapter:'ch3',type:'judge',q:'"AI苏格拉底启发式答疑"是通过直接给答案帮助学生解题。',answer:false,explanation:'错误。AI苏格拉底答疑是通过启发式提问激发思维，帮助学生逐步找到解决方法，不直接给答案。'},
-  {id:71,chapter:'ch3',type:'essay',q:'请说出新双语的4大产品亮点。',answer:'①原版剑桥读物：低级别用自拼方法读绘本；中高级别积累词汇阅读量，练精读泛读技巧\n②剑桥认证教学体系：自拼三维教学法、阅读金字塔等独家方法\n③高频开口训练：教-练-纠-测口语十大功能，课上课下60次高频开口\n④AI个性化闭环训练：AI纠音+口语模考；个性化题集查漏补缺；斩词王记单词；智能写作批改；AI对话练习',explanation:'双语4大亮点：原版剑桥读物、剑桥认证教学体系、高频开口训练、AI个性化闭环训练。'},
+  {id:71,chapter:'ch3',type:'multi',q:'新双语的4大产品亮点是哪四项？（多选）',options:['A. 原版剑桥读物', 'B. 剑桥认证教学体系', 'C. 高频开口训练', 'D. AI个性化闭环训练'],answers:[0,1,2,3],explanation:'新双语4大亮点：①原版剑桥读物②剑桥认证教学体系（自拼三维教学法、阅读金字塔）③高频开口训练（60次开口）④AI个性化闭环训练（AI纠音+斩词王+智能写作批改）。'},
   {id:72,chapter:'ch3',type:'single',q:'新双语"自然拼读三维教学法"三步是什么？',options:['A. 学规律→爆单词→会阅读','B. 学规律→学语法→会写作','C. 听音→拼读→记忆','D. 爆单词→学规律→会阅读'],answer:0,explanation:'自拼三维教学法：①学规律（首音&押韵音法）→②爆单词（从一组规则爆炸到多种词汇认读）→③会阅读（趣味阅读灵活运用）。'},
   {id:74,chapter:'ch3',type:'fill',q:'新双语卓越Level 3~4配套哪套绘本？',answers:['剑桥彩虹分级阅读','《剑桥彩虹分级阅读》'],explanation:'L0→北极星字母绘本；L1~2/全能3~4→剑桥自然拼读绘本；L3~4→剑桥彩虹分级阅读；L5~6→剑桥百科分级阅读。'},
   {id:75,chapter:'ch3',type:'single',q:'"阅读金字塔"提升阅读能力最根本的3步是什么？',options:['A. 听说读写、词汇积累、语法学习','B. 阅读量、学方法、刷题型','C. 精读、泛读、速读','D. 词汇、句型、篇章'],answer:1,explanation:'"阅读金字塔"3步：阅读量→学方法→刷题型。'},
@@ -420,7 +411,7 @@ const QUESTIONS = [
   {id:90,chapter:'ch4',type:'single',q:'英语竞品"鲸鱼小班"单课时价格大约是多少元？',options:['A. 21.98元','B. 27.59元','C. 49.97元','D. 68.89元'],answer:2,explanation:'鲸鱼小班单课时约49.97元。'},
   {id:91,chapter:'ch4',type:'single',q:'学而思英语L1~2单课时价格大约是多少元？L3~4呢？',options:['A. L1~2约81.88元，L3~4约68.89元','B. L1~2约49.97元，L3~4约81.88元','C. L1~2约27.59元，L3~4约49.97元','D. 都是49.97元'],answer:0,explanation:'学而思英语：L1~2约81.88元/课时，L3~4约68.89元/课时。'},
   {id:92,chapter:'ch4',type:'fill',q:'学而思英语L1~2单课时价格大约多少元？',answers:['81.88元','81.88'],explanation:'学而思英语L1~2单课时约81.88元，L3~4约68.89元。'},
-  {id:93,chapter:'ch4',type:'essay',q:'请说出希望学"X年级数学培训班"的价格、课程参数和单课时价格。',answer:'价格：1750元/半年\n课程参数：寒7次+春17次（共51课时），长学季每周一次，每节110min直播，每周一节30min录播习题课，买寒7+春17赠秋4\n单课时价格：26.92元/课时',explanation:'了解竞品价格参数，便于做价值对比销售。'},
+  {id:93,chapter:'ch4',type:'multi',q:'关于希望学"X年级数学培训班"，下列说法正确的是？（多选）',options:['A. 价格1750元/半年', 'B. 寒7次+春17次共51课时', 'C. 单课时价格26.92元', 'D. 每节课60分钟'],answers:[0,1,2],explanation:'希望学X年级数学：1750元/半年，寒7次+春17次共51课时，每节110min直播，单课时26.92元，买寒7+春17赠秋4。每节课是110分钟，不是60分钟，D错。'},
 ];
 
 // 考试题目总数同步更新
@@ -644,18 +635,10 @@ function buildQuestionHTML(q, mode) {
       <input type="text" class="fill-input" id="fillInput" placeholder="请输入答案...">
       <button class="fill-submit" onclick="submitFill('${mode}')">提交答案</button>
     </div>`;
-  } else if (q.type==='essay') {
-    inputHtml = `<div class="essay-area">
-      <textarea class="essay-textarea" id="essayInput" placeholder="请先自己作答，写下你的答案..."></textarea>
-      <div class="essay-btns">
-        <button class="show-answer-btn" data-action="show-answer" data-mode="${mode}">💡 查看参考答案</button>
-      </div>
-      <div class="answer-box" id="essayBox">${q.answer.replace(/\n/g,'<br>')}</div>
-      <div class="self-judge" id="selfJudge">
-        <button class="self-btn self-correct" data-action="self-correct" data-mode="${mode}">✅ 我答出来了</button>
-        <button class="self-btn self-wrong" data-action="self-wrong" data-mode="${mode}">❌ 我没答出来</button>
-      </div>
-    </div>`;
+  } else if (q.type==='multi') {
+    inputHtml = `<div class="options" id="multiOptions">${q.options.map((opt,i)=>`<button class="option-btn" data-idx="${i}" onclick="toggleMulti(this)">${opt}</button>`).join('')}</div>
+      <div class="multi-hint">多选题：请选择所有正确答案</div>
+      <button class="multi-submit" data-action="submit-multi" data-mode="${mode}">提交答案</button>`;
   }
   const wrongTag = isInWrongBook(q.id) ? '<span class="q-tag tag-wrong">错题</span>' : '';
   return `
@@ -673,8 +656,8 @@ function buildQuestionHTML(q, mode) {
   `;
 }
 
-function typeLabel(t){return{single:'单选题',judge:'判断题',fill:'填空题',essay:'简答题'}[t]||t;}
-function typeClass(t){return{single:'tag-single',judge:'tag-judge',fill:'tag-fill',essay:'tag-essay'}[t]||'';}
+function typeLabel(t){return{single:'单选题',judge:'判断题',fill:'填空题',multi:'多选题'}[t]||t;}
+function typeClass(t){return{single:'tag-single',judge:'tag-judge',fill:'tag-fill',multi:'tag-multi'}[t]||'';}
 function chapterLabel(c){return{ch1:'第一章·学情',ch2:'第二章·产品',ch3:'第三章·亮点',ch4:'第四章·竞品'}[c]||c;}
 
 function getState(mode){ return mode==='practice'?pState:mode==='exam'?eState:wrongState; }
@@ -688,6 +671,38 @@ function showFeedback(correct, explanation, qid, mode) {
   const nb=document.getElementById('nextBtn');
   if(nb) nb.classList.add('visible');
   window.scrollTo(0, document.body.scrollHeight);
+}
+
+function toggleMulti(btn) {
+  const st = btn.closest('.options');
+  if (!st) return;
+  // 如果已提交则不能再点
+  const submitBtn = document.querySelector('.multi-submit');
+  if (submitBtn && submitBtn.disabled) return;
+  btn.classList.toggle('selected');
+}
+
+function submitMulti(mode) {
+  const st = getState(mode); if (st.answered) return;
+  const selected = Array.from(document.querySelectorAll('#multiOptions .option-btn.selected')).map(b => parseInt(b.dataset.idx));
+  if (selected.length === 0) return;
+  st.answered = true;
+  const q = st.questions[st.currentIndex];
+  const correct = selected.length === q.answers.length && q.answers.every(a => selected.includes(a));
+  // 禁用提交按钮
+  const submitBtn = document.querySelector('.multi-submit');
+  if (submitBtn) submitBtn.disabled = true;
+  // 染色选项
+  document.querySelectorAll('#multiOptions .option-btn').forEach((b, i) => {
+    b.disabled = true;
+    const isCorrectChoice = q.answers.includes(i);
+    const isSelected = selected.includes(i);
+    if (isCorrectChoice) b.classList.add('correct');
+    else if (isSelected && !isCorrectChoice) b.classList.add('wrong');
+  });
+  if (correct) st.score++;
+  if (mode === 'practice') document.getElementById('scoreText').textContent = `得分：${st.score}`;
+  showFeedback(correct, q.explanation, q.id, mode);
 }
 
 function answerSingle(btn, idx, mode) {
@@ -738,29 +753,6 @@ function submitFill(mode) {
   showFeedback(correct,q.explanation,q.id,mode);
 }
 
-function showEssayAnswer(btn, mode) {
-  document.getElementById('essayBox').classList.add('visible');
-  document.getElementById('selfJudge').classList.add('visible');
-  const showBtn = document.querySelector('[data-action="show-answer"]');
-  if (showBtn) showBtn.style.display='none';
-}
-
-function selfScore(correct, mode) {
-  const st=getState(mode); if(st.answered)return;
-  st.answered=true;
-  document.querySelectorAll('.self-btn').forEach(b=>b.disabled=true);
-  const q=st.questions[st.currentIndex];
-  if(correct)st.score++;
-  if(mode==='practice') document.getElementById('scoreText').textContent=`得分：${st.score}`;
-  if(!correct) addToWrongBook(q.id);
-  else if(mode==='wrong') removeFromWrongBook(q.id);
-  const fb=document.getElementById('feedback');
-  fb.className=`feedback visible ${correct?'correct-fb':'wrong-fb'}`;
-  fb.innerHTML=`<div class="feedback-label">${correct?'✅ 很好，继续加油！':'❌ 没关系，再看看解析'}</div><div class="explanation">📖 ${q.explanation}</div>`;
-  const nb=document.getElementById('nextBtn');
-  if(nb){nb.classList.add('visible');}
-  window.scrollTo(0, document.body.scrollHeight);
-}
 
 function nextQuestion(mode) {
   const st=getState(mode);
@@ -788,9 +780,7 @@ document.body.addEventListener('click', function(e) {
   const mode = btn.dataset.mode;
   const action = btn.dataset.action || (btn.id === 'nextBtn' ? 'next' : null);
   if (action === 'next') { nextQuestion(mode); return; }
-  if (action === 'show-answer') { showEssayAnswer(btn, mode); return; }
-  if (action === 'self-correct') { selfScore(true, mode); return; }
-  if (action === 'self-wrong') { selfScore(false, mode); return; }
+  if (action === 'submit-multi') { submitMulti(mode); return; }
 });
 
 // ==================== 登录门 ====================
