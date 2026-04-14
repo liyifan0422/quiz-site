@@ -27,10 +27,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif
 .header p { font-size: 12px; opacity: 0.85; margin-top: 4px; }
 
 /* Mode tabs */
-.mode-tabs { background: white; display: flex; border-bottom: 2px solid #e2e8f0; }
-.mode-tab { flex: 1; padding: 12px 8px; text-align: center; font-size: 14px; font-weight: 600; color: #a0aec0; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
+.mode-tabs { background: white; display: flex; border-bottom: 2px solid #e2e8f0; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.mode-tabs::-webkit-scrollbar { display: none; }
+.mode-tab { flex: 0 0 auto; min-width: 60px; padding: 10px 10px; text-align: center; font-size: 12px; font-weight: 600; color: #a0aec0; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s; white-space: nowrap; }
 .mode-tab.active { color: #667eea; border-bottom-color: #667eea; }
-.mode-tab .tab-icon { font-size: 16px; display: block; margin-bottom: 2px; }
+.mode-tab .tab-icon { font-size: 15px; display: block; margin-bottom: 2px; }
 
 /* Filter bar */
 .filter-bar { background: white; padding: 10px 12px; display: flex; gap: 6px; flex-wrap: wrap; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 10; }
@@ -146,6 +147,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif
 .empty-state { text-align: center; padding: 50px 20px; color: #a0aec0; }
 .empty-state .icon { font-size: 52px; margin-bottom: 12px; }
 .empty-state p { font-size: 15px; }
+
+/* Key Fill mode */
+.keyfill-filter { background: white; padding: 10px 12px; display: flex; gap: 6px; flex-wrap: wrap; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 10; }
+.keyfill-card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 16px; }
+.keyfill-sentence { font-size: 16px; line-height: 1.9; color: #2d3748; font-weight: 500; }
+.blank-input { display: inline-block; min-width: 80px; max-width: 160px; border: none; border-bottom: 2px solid #667eea; background: transparent; font-size: 16px; color: #667eea; outline: none; text-align: center; padding: 0 4px; transition: border-color 0.2s; }
+.blank-input:focus { border-bottom-color: #764ba2; }
+.blank-input.correct { border-bottom-color: #38a169; color: #276749; background: #f0fff4; border-radius: 4px; }
+.blank-input.wrong { border-bottom-color: #e53e3e; color: #c53030; background: #fff5f5; border-radius: 4px; }
+.keyfill-submit { margin-top: 14px; width: 100%; padding: 12px; background: #667eea; color: white; border: none; border-radius: 10px; font-size: 15px; cursor: pointer; font-weight: 600; transition: background 0.2s; }
+.keyfill-submit:hover { background: #5a67d8; }
+.keyfill-submit:disabled { background: #a0aec0; cursor: default; }
+.keyfill-answer-hint { margin-top: 8px; font-size: 13px; color: #718096; background: #f7fafc; border-radius: 8px; padding: 8px 12px; display: none; }
+.keyfill-answer-hint.visible { display: block; }
+.keyfill-progress { background: white; padding: 10px 16px; border-bottom: 1px solid #e2e8f0; }
+.kf-tag { font-size: 11px; padding: 3px 8px; border-radius: 10px; font-weight: 600; background: #fff0f6; color: #d53f8c; margin-bottom: 10px; display: inline-block; }
 </style>
 </head>
 <body>
@@ -181,6 +198,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif
   <div class="mode-tab" onclick="switchTab('wrong')" id="tab-wrong">
     <span class="tab-icon">❌</span>错题本
   </div>
+  <div class="mode-tab" onclick="switchTab('keyfill')" id="tab-keyfill">
+    <span class="tab-icon">🔴</span>重点填空
+  </div>
 </div>
 
 <!-- HOME -->
@@ -206,6 +226,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif
     <div class="card-body">
       <h3>错题本 <span class="wrong-count-badge" id="homeWrongCount">0</span></h3>
       <p>专项攻克薄弱知识点，加深记忆</p>
+    </div>
+    <div class="card-arrow">›</div>
+  </div>
+  <div class="mode-card" onclick="switchTab('keyfill')">
+    <div class="card-icon">🔴</div>
+    <div class="card-body">
+      <h3>重点填空</h3>
+      <p>专项测试讲义红色字内容，加深关键数据记忆</p>
     </div>
     <div class="card-arrow">›</div>
   </div>
@@ -307,6 +335,35 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif
 <!-- WRONG BOOK -->
 <div id="page-wrong" style="display:none;">
   <div class="main" id="wrongMain"></div>
+</div>
+
+<!-- KEY FILL -->
+<div id="page-keyfill" style="display:none;">
+  <div class="keyfill-filter" id="kfFilterBar">
+    <button class="filter-btn active" data-kffilter="all">全部</button>
+    <button class="filter-btn" data-kffilter="ch1">第一章·学情</button>
+    <button class="filter-btn" data-kffilter="ch2">第二章·产品</button>
+    <button class="filter-btn" data-kffilter="ch3">第三章·亮点</button>
+    <button class="filter-btn" data-kffilter="ch4">第四章·竞品</button>
+  </div>
+  <div class="keyfill-progress">
+    <div class="progress-info">
+      <span id="kfProgressText">第 1 题 / 共 0 题</span>
+      <span id="kfScoreText" style="color:#d53f8c;font-weight:600;">得分：0</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="kfProgressFill" style="width:0%;background:linear-gradient(90deg,#ed64a6,#d53f8c)"></div></div>
+  </div>
+  <div class="main">
+    <div id="kfArea"></div>
+    <div class="summary" id="kfSummary">
+      <div class="summary-score" id="kfFinalScore" style="background:linear-gradient(135deg,#ed64a6,#d53f8c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">0%</div>
+      <div class="summary-text">重点填空完成！</div>
+      <div class="summary-detail" id="kfDetail"></div>
+      <div class="summary-btns">
+        <button class="restart-btn" style="background:linear-gradient(135deg,#ed64a6,#d53f8c);" onclick="initKeyFill()">🔄 再练一遍</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -444,6 +501,178 @@ const QUESTIONS = [
 // 考试题目总数同步更新
 
 
+// ==================== 重点填空题库（红色字内容）====================
+// 格式：sentence中用 __BLANK__ 标记空格，blanks为对应答案数组（支持多个可接受答案），hint为提示
+const KEY_FILL_QUESTIONS = [
+  // ===== 第一章·语文学情 =====
+  {id:'kf1', chapter:'ch1', category:'语文学情',
+   sentence:'语文排课量最高，占到九年总课量的__BLANK__。',
+   blanks:[['20%-22%','20%~22%','20%到22%']],
+   hint:'语文是课时占比最高的科目'},
+  {id:'kf2', chapter:'ch1', category:'语文学情',
+   sentence:'2026年小学语文下学期（春季）期末考试大概在__BLANK__。',
+   blanks:[['2026年6月下旬','6月下旬']],
+   hint:'记住具体月份和时段'},
+  {id:'kf3', chapter:'ch1', category:'语文学情',
+   sentence:'__BLANK__年首次将"整本书阅读"写进课标。',
+   blanks:[['2022']],
+   hint:'对应新课标版本年份'},
+  {id:'kf4', chapter:'ch1', category:'语文低段学情',
+   sentence:'课程标准要求1~2年级课外阅读总量不少于__BLANK__，背诵优秀古诗文__BLANK__篇（段）。',
+   blanks:[['5万字','5万'],['50']],
+   hint:'低段阅读量和背诵篇数'},
+  {id:'kf5', chapter:'ch1', category:'语文中段学情',
+   sentence:'3~4年级课外阅读总量不少于__BLANK__（是1-2年级的__BLANK__倍）。',
+   blanks:[['40万字','40万'],['8']],
+   hint:'中段阅读量是低段的8倍'},
+  {id:'kf6', chapter:'ch1', category:'语文高段学情',
+   sentence:'5~6年级课外阅读总量不少于__BLANK__，背诵优秀诗文__BLANK__篇（段）。',
+   blanks:[['100万字','100万'],['60']],
+   hint:'高段阅读量最大，背诵篇数也最多'},
+  {id:'kf7', chapter:'ch1', category:'语文中段学情',
+   sentence:'从__BLANK__年级开始，看图写话被主题作文所取代。',
+   blanks:[['三','3']],
+   hint:'三年级是语文能力的转折点'},
+
+  // ===== 第一章·数学学情 =====
+  {id:'kf8', chapter:'ch1', category:'数学新教材',
+   sentence:'2026年春季，__BLANK__年级已经在使用数学新教材，2026年秋季，__BLANK__年级也将换成新教材。',
+   blanks:[['一、二、三','一二三','1、2、3'],['四、五、六','四五六','4、5、6']],
+   hint:'新教材更换节奏，春季三个年级，秋季三个年级'},
+  {id:'kf9', chapter:'ch1', category:'数学三年级陷阱',
+   sentence:'"三年级陷阱"：一、二年级90分以上的学生占比在__BLANK__左右，到了三年级仅有__BLANK__了。',
+   blanks:[['80%'],['57%']],
+   hint:'从80%骤降到57%，这就是三年级陷阱'},
+  {id:'kf10', chapter:'ch1', category:'数学中段学情',
+   sentence:'数学中段（3~4年级）会有__BLANK__的学生达不到90分以上，__BLANK__的学生60分以下。',
+   blanks:[['30%~40%','30%-40%'],['3%~5%','3%-5%']],
+   hint:'中段达不到90分的比例和不及格比例'},
+  {id:'kf11', chapter:'ch1', category:'数学高段学情',
+   sentence:'数学高段（5~6年级）会有__BLANK__左右的学生达不到90分以上，__BLANK__的学生60分以下。',
+   blanks:[['一半','50%'],['5%~8%','5%-8%']],
+   hint:'高段约一半达不到90分'},
+  {id:'kf12', chapter:'ch1', category:'数学高段学情',
+   sentence:'在小学数学毕业考试中，六年级的知识占__BLANK__甚至更多。',
+   blanks:[['60%-70%','60%~70%']],
+   hint:'六年级知识在毕业考中占大头'},
+
+  // ===== 第一章·英语学情 =====
+  {id:'kf13', chapter:'ch1', category:'英语校内介绍',
+   sentence:'英语为三至九年级必修课，九年总课时占比__BLANK__，低于语文（__BLANK__）和数学（__BLANK__）。',
+   blanks:[['6%~8%','6%-8%'],['20%~22%','20%-22%'],['13%~15%','13%-15%']],
+   hint:'三科课时占比，英语最低'},
+  {id:'kf14', chapter:'ch1', category:'英语教材',
+   sentence:'__BLANK__年9月教材全面更新，从新三年级开始逐年更换。',
+   blanks:[['2024']],
+   hint:'英语教材全面更新的时间'},
+  {id:'kf15', chapter:'ch1', category:'英语课标变化',
+   sentence:'2011版英语二级词汇表__BLANK__个；2022版收录__BLANK__个。',
+   blanks:[['423'],['505']],
+   hint:'两版课标词汇量的变化'},
+  {id:'kf16', chapter:'ch1', category:'英语黄金期',
+   sentence:'__BLANK__岁为语言关键期、敏感期，是培养英语语音语感和口语表达的最佳时机。',
+   blanks:[['3~7','3-7','3到7']],
+   hint:'英语学习黄金期年龄段'},
+
+  // ===== 第一章·综合学情 =====
+  {id:'kf17', chapter:'ch1', category:'综合学情',
+   sentence:'2026春季是史上"最短学期"，往年有__BLANK__周左右，今年春季仅有__BLANK__周。',
+   blanks:[['20'],['18']],
+   hint:'今年比往年少了约2周'},
+  {id:'kf18', chapter:'ch1', category:'综合学情',
+   sentence:'2026春起，小学__BLANK__年级不组织任何纸笔考试；其他年级每学期仅__BLANK__次期末考试。',
+   blanks:[['一、二','一二','1、2'],['1','一']],
+   hint:'考试新政的核心内容'},
+
+  // ===== 第二章·产品 =====
+  {id:'kf19', chapter:'ch2', category:'语文产品',
+   sentence:'新人文系统班，覆盖__BLANK__年级，服务校内成绩__BLANK__分以上的用户。',
+   blanks:[['1-6','1~6','一至六'],['85']],
+   hint:'新人文系统班的覆盖范围和门槛'},
+  {id:'kf20', chapter:'ch2', category:'语文产品',
+   sentence:'新人文创作班聚焦培养小学__BLANK__年级学生的核心写作能力。',
+   blanks:[['三至六','3~6','三到六']],
+   hint:'创作班不覆盖低年级'},
+  {id:'kf21', chapter:'ch2', category:'英语产品',
+   sentence:'卓越线面向1起或1~2年级提前启蒙，校内__BLANK__分以上，始终超前校内__BLANK__年。',
+   blanks:[['90'],['半','0.5']],
+   hint:'卓越线的成绩门槛和超前幅度'},
+
+  // ===== 第二章·价格 =====
+  {id:'kf22', chapter:'ch2', category:'语文价格',
+   sentence:'春季新人文素养全季（__BLANK__周）课程价格为__BLANK__元，SKU2（__BLANK__周）为__BLANK__元。',
+   blanks:[['16'],['2880'],['9'],['1620']],
+   hint:'语文两种SKU的周数和价格'},
+  {id:'kf23', chapter:'ch2', category:'数学价格',
+   sentence:'数学L1秋/春季：课程售价2880元，优惠券__BLANK__元，实付__BLANK__元。',
+   blanks:[['1090'],['1790']],
+   hint:'L1的券和实付'},
+  {id:'kf24', chapter:'ch2', category:'数学价格',
+   sentence:'数学L2~L6短+长联报：原价__BLANK__元，优惠券__BLANK__元，实付__BLANK__元。',
+   blanks:[['4140'],['1260'],['2880']],
+   hint:'L2~L6联报的三个价格'},
+  {id:'kf25', chapter:'ch2', category:'英语价格',
+   sentence:'英语单春（所有级别）：春季原价2880元，代金券__BLANK__元，实付__BLANK__元。',
+   blanks:[['500'],['2380']],
+   hint:'单春优惠券和实付'},
+  {id:'kf26', chapter:'ch2', category:'英语价格',
+   sentence:'英语寒春联报（其他所有级别）：原价__BLANK__元，代金券__BLANK__元，实付__BLANK__元。',
+   blanks:[['4140'],['1260'],['2880']],
+   hint:'寒春联报=冬1260+春2880，券1260'},
+
+  // ===== 第三章·产品亮点 =====
+  {id:'kf27', chapter:'ch3', category:'新人文亮点',
+   sentence:'新人文读写闭环：__BLANK__→课中老师带写→__BLANK__，100%覆盖单元习作、考场作文、阅读微创作。',
+   blanks:[['课前预演素材','预演素材'],['课后多轮批改','多轮批改']],
+   hint:'读写闭环三步，记住首尾两步'},
+  {id:'kf28', chapter:'ch3', category:'新思维AI教室',
+   sentence:'"猿小助"新增"今日挑战"，针对上节课表现制定课堂任务，完成后可获得__BLANK__个金币。',
+   blanks:[['10~20','10-20','10到20']],
+   hint:'金币数量范围'},
+  {id:'kf29', chapter:'ch3', category:'新思维AI教室',
+   sentence:'"猿小助"课堂监督会识别走神行为，包括：未开摄像头、__BLANK__、离开摄像头、__BLANK__、离线。',
+   blanks:[['离设备太近'],['切出后台']],
+   hint:'五种走神行为，填中间两个'},
+  {id:'kf30', chapter:'ch3', category:'双语亮点',
+   sentence:'新双语"高频开口训练"：教-练-纠-测口语十大功能，课上课下__BLANK__次高频开口，全级别覆盖。',
+   blanks:[['60']],
+   hint:'记住开口次数'},
+  {id:'kf31', chapter:'ch3', category:'双语亮点',
+   sentence:'"阅读金字塔"提升阅读能力最根本性的3步：__BLANK__、__BLANK__、__BLANK__。',
+   blanks:[['阅读量'],['学方法'],['刷题型']],
+   hint:'三步按顺序记'},
+  {id:'kf32', chapter:'ch3', category:'双语绘本',
+   sentence:'卓越Level 3~4配套绘本是__BLANK__；卓越Level 5~6配套绘本是__BLANK__。',
+   blanks:[['《剑桥彩虹分级阅读》','剑桥彩虹分级阅读'],['《剑桥百科分级阅读》','剑桥百科分级阅读']],
+   hint:'中高级别各配不同绘本'},
+  {id:'kf33', chapter:'ch3', category:'新思维教学法',
+   sentence:'新思维五步教学法：__BLANK__→趣体验→__BLANK__→趣迁移→趣应用。',
+   blanks:[['问题来了'],['思维来了']],
+   hint:'填入第一步和第三步'},
+
+  // ===== 第四章·竞品 =====
+  {id:'kf34', chapter:'ch4', category:'数学竞品价格',
+   sentence:'作业帮"百分思维"：1~2年级单课时__BLANK__元，3~6年级单课时__BLANK__元。',
+   blanks:[['27.59'],['21.98']],
+   hint:'作业帮两个年段的单课时价格'},
+  {id:'kf35', chapter:'ch4', category:'数学竞品价格',
+   sentence:'鲸鱼爱学单课时约__BLANK__元/课时。',
+   blanks:[['49.97']],
+   hint:'鲸鱼是高端小班课，价格最高'},
+  {id:'kf36', chapter:'ch4', category:'数学竞品价格',
+   sentence:'希望学X年级数学：__BLANK__元/半年，共51课时，单课时__BLANK__元。',
+   blanks:[['1750'],['26.92']],
+   hint:'希望学的总价和单课时价'},
+  {id:'kf37', chapter:'ch4', category:'英语竞品价格',
+   sentence:'学而思思维小班英语L1~2单课时约__BLANK__元，L3~4单课时约__BLANK__元。',
+   blanks:[['81.88'],['68.89']],
+   hint:'学而思英语价格最贵，L1~2比L3~4更贵'},
+  {id:'kf38', chapter:'ch4', category:'数学竞品',
+   sentence:'学而思"思维小班"班型规模约__BLANK__人，孩子能举手，上麦机会多。',
+   blanks:[['10']],
+   hint:'学而思思维小班人数'},
+];
+
 // ==================== 错题本（localStorage）====================
 function getWrongBook() {
   try { return JSON.parse(localStorage.getItem('wrongBook') || '[]'); } catch(e) { return []; }
@@ -464,7 +693,7 @@ function isInWrongBook(qid) {
 }
 
 // ==================== Tab切换 ====================
-const pages = ['home','practice','exam','wrong'];
+const pages = ['home','practice','exam','wrong','keyfill'];
 function switchTab(name) {
   pages.forEach(p => {
     document.getElementById('page-'+p).style.display = p===name ? 'block' : 'none';
@@ -472,6 +701,7 @@ function switchTab(name) {
   });
   if (name === 'wrong') renderWrongBook();
   if (name === 'home') updateHomeWrongCount();
+  if (name === 'keyfill') initKeyFill();
 }
 
 function updateHomeWrongCount() {
@@ -794,9 +1024,9 @@ function nextQuestion(mode) {
 }
 
 // ==================== 刷题过滤器 ====================
-document.querySelectorAll('.filter-btn').forEach(btn=>{
+document.querySelectorAll('#filterBar .filter-btn').forEach(btn=>{
   btn.addEventListener('click',function(){
-    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('#filterBar .filter-btn').forEach(b=>b.classList.remove('active'));
     this.classList.add('active');
     pState.filter=this.dataset.filter;
     initPractice();
@@ -845,6 +1075,138 @@ document.body.addEventListener('click', function(e) {
   btn.addEventListener('click', tryEnter);
   input.addEventListener('keydown', e => { if (e.key === 'Enter') tryEnter(); });
 })();
+
+// ==================== 重点填空模式 ====================
+let kfState = { filter:'all', questions:[], currentIndex:0, score:0, total:0, answered:false };
+
+function initKeyFill() {
+  const f = kfState.filter;
+  let qs = f==='all' ? [...KEY_FILL_QUESTIONS] : KEY_FILL_QUESTIONS.filter(q=>q.chapter===f);
+  kfState.questions = shuffle(qs);
+  kfState.currentIndex = 0; kfState.score = 0; kfState.total = kfState.questions.length;
+  kfState.answered = false;
+  document.getElementById('kfSummary').classList.remove('visible');
+  updateKfProgress();
+  renderKfQuestion();
+}
+
+function updateKfProgress() {
+  const idx = kfState.currentIndex, t = kfState.total;
+  document.getElementById('kfProgressText').textContent = `第 ${idx+1} 题 / 共 ${t} 题`;
+  document.getElementById('kfScoreText').textContent = `得分：${kfState.score}`;
+  document.getElementById('kfProgressFill').style.width = (t>0 ? idx/t*100 : 0)+'%';
+}
+
+function renderKfQuestion() {
+  const area = document.getElementById('kfArea');
+  if (!area) return;
+  if (kfState.currentIndex >= kfState.total) { showKfSummary(); area.innerHTML=''; return; }
+  kfState.answered = false;
+  const q = kfState.questions[kfState.currentIndex];
+  updateKfProgress();
+  area.innerHTML = buildKfQuestionHTML(q);
+  // 绑定每个blank的回车提交
+  area.querySelectorAll('.blank-input').forEach(inp => {
+    inp.addEventListener('keydown', e => { if (e.key==='Enter') submitKfQuestion(); });
+  });
+}
+
+function buildKfQuestionHTML(q) {
+  // 将 sentence 中的 __BLANK__ 替换成 input
+  let blankIdx = 0;
+  const sentenceHTML = q.sentence.replace(/__BLANK__/g, () => {
+    const i = blankIdx++;
+    // 估算输入框宽度（根据答案长度）
+    const maxLen = Math.max(...q.blanks[i].map(a=>a.length));
+    const width = Math.max(60, maxLen * 16) + 'px';
+    return `<input class="blank-input" data-blank="${i}" style="width:${width}" placeholder="填写答案" autocomplete="off">`;
+  });
+  return `
+    <div class="keyfill-card">
+      <span class="kf-tag">🔴 重点填空 · ${q.category}</span>
+      <div class="keyfill-sentence">${sentenceHTML}</div>
+      <button class="keyfill-submit" onclick="submitKfQuestion()">提交答案</button>
+      <div class="keyfill-answer-hint" id="kfHint"></div>
+      <div class="feedback" data-fb="keyfill"></div>
+    </div>
+    <button class="next-btn" data-action="next-kf" style="display:none;margin-top:4px;">下一题 →</button>
+  `;
+}
+
+function submitKfQuestion() {
+  if (kfState.answered) return;
+  const q = kfState.questions[kfState.currentIndex];
+  const inputs = document.querySelectorAll('.blank-input');
+  // 检查是否所有blank都填了
+  let allFilled = true;
+  inputs.forEach(inp => { if (!inp.value.trim()) allFilled = false; });
+  if (!allFilled) return;
+  kfState.answered = true;
+
+  const normalize = s => s.replace(/\s/g,'').toLowerCase();
+  let allCorrect = true;
+  inputs.forEach((inp, i) => {
+    inp.disabled = true;
+    const val = inp.value.trim();
+    const correct = q.blanks[i].some(a => normalize(val) === normalize(a));
+    inp.classList.add(correct ? 'correct' : 'wrong');
+    if (!correct) allCorrect = false;
+  });
+
+  // 禁用提交
+  document.querySelector('.keyfill-submit').disabled = true;
+
+  // 显示提示/解析
+  const hintEl = document.getElementById('kfHint');
+  if (!allCorrect) {
+    // 显示所有空的参考答案
+    const answerText = q.blanks.map((b,i) => `空${i+1}：${b[0]}`).join('　');
+    hintEl.textContent = `📖 参考答案：${answerText}`;
+    hintEl.classList.add('visible');
+  } else {
+    hintEl.textContent = `✅ 完全正确！💡 ${q.hint}`;
+    hintEl.classList.add('visible');
+  }
+
+  if (allCorrect) kfState.score++;
+  document.getElementById('kfScoreText').textContent = `得分：${kfState.score}`;
+
+  // 显示下一题按钮
+  const nb = document.querySelector('[data-action="next-kf"]');
+  if (nb) nb.style.display = 'block';
+  window.scrollTo(0, document.body.scrollHeight);
+}
+
+function nextKfQuestion() {
+  kfState.currentIndex++;
+  renderKfQuestion();
+  window.scrollTo(0, 0);
+}
+
+function showKfSummary() {
+  const pct = kfState.total>0 ? Math.round(kfState.score/kfState.total*100) : 0;
+  document.getElementById('kfFinalScore').textContent = pct+'%';
+  let msg = pct>=90?'太厉害了！🎉':pct>=70?'还不错！💪':'继续加油！📚';
+  document.getElementById('kfDetail').textContent = `答对 ${kfState.score} 题 / 共 ${kfState.total} 题 · ${msg}`;
+  document.getElementById('kfSummary').classList.add('visible');
+  window.scrollTo(0,0);
+}
+
+// 重点填空过滤器
+document.querySelectorAll('#kfFilterBar [data-kffilter]').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('#kfFilterBar .filter-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    kfState.filter = this.dataset.kffilter;
+    initKeyFill();
+  });
+});
+
+// 扩展事件委托：支持重点填空的下一题按钮
+document.body.addEventListener('click', function(e) {
+  const btn = e.target.closest('[data-action="next-kf"]');
+  if (btn) { nextKfQuestion(); return; }
+});
 
 // ==================== 初始化 ====================
 switchTab('home');
