@@ -232,7 +232,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif
   <div class="mode-card" onclick="switchTab('keyfill')">
     <div class="card-icon">🔴</div>
     <div class="card-body">
-      <h3>重点填空</h3>
+      <h3>重点填空 <span class="wrong-count-badge" id="homeKfWrongCount" style="display:none">0</span></h3>
       <p>专项测试讲义红色字内容，加深关键数据记忆</p>
     </div>
     <div class="card-arrow">›</div>
@@ -919,6 +919,7 @@ function switchTab(name) {
 function updateHomeWrongCount() {
   const c = getWrongBook().length;
   document.getElementById('homeWrongCount').textContent = c;
+  updateHomeKfWrongCount();
 }
 
 // ==================== 刷题模式 ====================
@@ -1037,21 +1038,51 @@ function showExamSummary() {
 // ==================== 错题本模式 ====================
 let wrongState = { questions:[], currentIndex:0, score:0, total:0, answered:false };
 
+function updateHomeKfWrongCount() {
+  const c = getKfWrongCount();
+  const el = document.getElementById('homeKfWrongCount');
+  if (!el) return;
+  if (c > 0) { el.textContent = c; el.style.display = ''; }
+  else { el.style.display = 'none'; }
+}
+
 function renderWrongBook() {
   const main = document.getElementById('wrongMain');
   const wrongIds = getWrongBook();
+  const kfWrongIds = Object.keys(getKfWrongBook());
   updateHomeWrongCount();
-  if (wrongIds.length === 0) {
+  updateHomeKfWrongCount();
+
+  if (wrongIds.length === 0 && kfWrongIds.length === 0) {
     main.innerHTML = `<div class="empty-state"><div class="icon">🎉</div><p>错题本是空的，继续加油！</p></div>`;
     return;
   }
-  const wrongQs = QUESTIONS.filter(q=>wrongIds.includes(q.id));
-  main.innerHTML = `
+
+  const normalSection = wrongIds.length > 0 ? `
     <div style="background:white;border-radius:16px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,0.08);margin-bottom:14px;">
-      <div style="font-size:15px;font-weight:600;color:#2d3748;margin-bottom:6px;">❌ 错题本</div>
-      <div style="font-size:13px;color:#718096;margin-bottom:16px;">共 ${wrongQs.length} 道错题，专项练习加深记忆</div>
+      <div style="font-size:15px;font-weight:600;color:#2d3748;margin-bottom:6px;">❌ 选择题错题</div>
+      <div style="font-size:13px;color:#718096;margin-bottom:16px;">共 ${wrongIds.length} 道错题，专项练习加深记忆</div>
       <button onclick="startWrongPractice()" style="width:100%;padding:13px;background:linear-gradient(135deg,#fc8181,#e53e3e);color:white;border:none;border-radius:10px;font-size:15px;cursor:pointer;font-weight:700;">🔁 开始练习错题</button>
     </div>
+  ` : '';
+
+  const kfWrongBook = getKfWrongBook();
+  const kfSection = kfWrongIds.length > 0 ? `
+    <div style="background:white;border-radius:16px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,0.08);margin-bottom:14px;">
+      <div style="font-size:15px;font-weight:600;color:#2d3748;margin-bottom:6px;">🔴 填空题错题</div>
+      <div style="font-size:13px;color:#718096;margin-bottom:4px;">共 ${kfWrongIds.length} 道错题，答对4次自动毕业</div>
+      <div style="font-size:12px;color:#a0aec0;margin-bottom:16px;">${kfWrongIds.map(id=>{
+        const q = KEY_FILL_QUESTIONS.find(q=>q.id===id);
+        const cnt = kfWrongBook[id];
+        return q ? `<span style="display:inline-block;margin:2px 4px 2px 0;padding:2px 8px;background:#fff0f6;border-radius:10px;color:#d53f8c;">${q.category}·${cnt}/4</span>` : '';
+      }).join('')}</div>
+      <button onclick="startKfWrongPractice()" style="width:100%;padding:13px;background:linear-gradient(135deg,#f687b3,#d53f8c);color:white;border:none;border-radius:10px;font-size:15px;cursor:pointer;font-weight:700;">🔁 练习填空错题</button>
+    </div>
+  ` : '';
+
+  main.innerHTML = `
+    ${normalSection}
+    ${kfSection}
     <div id="wrongQuizArea"></div>
     <div class="summary" id="wrongSummary">
       <div class="summary-score" id="wrongFinalScore" style="background:linear-gradient(135deg,#fc8181,#e53e3e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">0%</div>
@@ -1059,6 +1090,16 @@ function renderWrongBook() {
       <div class="summary-detail" id="wrongDetail"></div>
       <div class="summary-btns">
         <button class="restart-btn" style="background:linear-gradient(135deg,#fc8181,#e53e3e);" onclick="startWrongPractice()">🔄 再练一遍</button>
+      </div>
+    </div>
+    <div id="kfWrongQuizArea"></div>
+    <div class="summary" id="kfWrongSummary" style="display:none;">
+      <div class="summary-score" id="kfWrongFinalScore" style="background:linear-gradient(135deg,#f687b3,#d53f8c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">0%</div>
+      <div class="summary-text">填空错题练习完成！</div>
+      <div class="summary-detail" id="kfWrongDetail"></div>
+      <div class="summary-btns">
+        <button class="restart-btn" style="background:linear-gradient(135deg,#f687b3,#d53f8c);" onclick="startKfWrongPractice()">🔄 再练一遍</button>
+        <button class="restart-btn" style="background:#667eea;" onclick="switchTab('wrong')">刷新错题本</button>
       </div>
     </div>
   `;
@@ -1090,6 +1131,112 @@ function showWrongSummary() {
   document.getElementById('wrongDetail').textContent = `答对 ${wrongState.score} / ${wrongState.total} 题`;
   document.getElementById('wrongSummary').classList.add('visible');
   updateHomeWrongCount();
+  window.scrollTo(0,0);
+}
+
+// ==================== 填空错题练习 ====================
+let kfWrongState = { questions:[], currentIndex:0, score:0, total:0, answered:false };
+
+function startKfWrongPractice() {
+  const kfWrongIds = Object.keys(getKfWrongBook());
+  const qs = shuffle(KEY_FILL_QUESTIONS.filter(q => kfWrongIds.includes(q.id)));
+  kfWrongState = { questions:qs, currentIndex:0, score:0, total:qs.length, answered:false };
+  const summaryEl = document.getElementById('kfWrongSummary');
+  if (summaryEl) summaryEl.style.display = 'none';
+  renderKfWrongQuestion();
+}
+
+function renderKfWrongQuestion() {
+  const area = document.getElementById('kfWrongQuizArea');
+  if (!area) return;
+  if (kfWrongState.currentIndex >= kfWrongState.total) { showKfWrongSummary(); area.innerHTML=''; return; }
+  kfWrongState.answered = false;
+  const q = kfWrongState.questions[kfWrongState.currentIndex];
+  // 显示连续答对进度
+  const kfWrongBook = getKfWrongBook();
+  const cnt = kfWrongBook[q.id] || 0;
+  let blankIdx = 0;
+  const sentenceHTML = q.sentence.replace(/__BLANK__/g, () => {
+    const i = blankIdx++;
+    const maxLen = Math.max(...q.blanks[i].map(a=>a.length));
+    const width = Math.max(60, maxLen * 16) + 'px';
+    return `<input class="blank-input" data-blank="${i}" style="width:${width}" placeholder="填写答案" autocomplete="off">`;
+  });
+  area.innerHTML = `
+    <div class="keyfill-card">
+      <span class="kf-tag">🔴 填空错题 · ${q.category}</span>
+      <span class="q-tag tag-wrong" style="margin-left:6px;">已答对 ${cnt}/4 次</span>
+      <div class="keyfill-sentence" style="margin-top:10px;">${sentenceHTML}</div>
+      <button class="keyfill-submit" data-action="submit-kf-wrong">提交答案</button>
+      <div class="keyfill-answer-hint" id="kfWrongHint"></div>
+    </div>
+    <button class="next-btn" data-action="next-kf-wrong" style="display:none;margin-top:4px;">下一题 →</button>
+  `;
+  area.querySelectorAll('.blank-input').forEach(inp => {
+    inp.addEventListener('keydown', e => { if (e.key==='Enter') submitKfWrongQuestion(); });
+  });
+}
+
+function submitKfWrongQuestion() {
+  if (kfWrongState.answered) return;
+  const q = kfWrongState.questions[kfWrongState.currentIndex];
+  const inputs = document.querySelectorAll('#kfWrongQuizArea .blank-input');
+  let allFilled = true;
+  inputs.forEach(inp => { if (!inp.value.trim()) allFilled = false; });
+  if (!allFilled) return;
+  kfWrongState.answered = true;
+
+  const normalize = s => s.replace(/\s/g,'').toLowerCase();
+  let allCorrect = true;
+  inputs.forEach((inp, i) => {
+    inp.disabled = true;
+    const val = inp.value.trim();
+    const correct = q.blanks[i].some(a => normalize(val) === normalize(a));
+    inp.classList.add(correct ? 'correct' : 'wrong');
+    if (!correct) allCorrect = false;
+  });
+
+  const submitBtn = document.querySelector('[data-action="submit-kf-wrong"]');
+  if (submitBtn) submitBtn.disabled = true;
+
+  const hintEl = document.getElementById('kfWrongHint');
+  if (!allCorrect) {
+    const answerText = q.blanks.map((b,i) => `空${i+1}：${b[0]}`).join('　');
+    hintEl.textContent = `📖 参考答案：${answerText}`;
+    hintEl.classList.add('visible');
+    kfWrongReset(q.id); // 答错，连续答对清零
+  } else {
+    kfWrongCorrect(q.id); // 答对，连续答对+1
+    const kfWrongBook = getKfWrongBook();
+    const remaining = kfWrongBook[q.id];
+    if (remaining === undefined) {
+      // 已毕业（满4次被移除）
+      hintEl.textContent = `🎓 完全掌握！已从错题本毕业！💡 ${q.hint}`;
+    } else {
+      hintEl.textContent = `✅ 正确！再答对 ${4 - remaining} 次可毕业 💡 ${q.hint}`;
+    }
+    hintEl.classList.add('visible');
+    kfWrongState.score++;
+  }
+
+  document.getElementById('kfScoreText') && (document.getElementById('kfScoreText').textContent = ``);
+  updateHomeKfWrongCount();
+
+  const nb = document.querySelector('[data-action="next-kf-wrong"]');
+  if (nb) nb.style.display = 'block';
+  window.scrollTo(0, document.body.scrollHeight);
+}
+
+function showKfWrongSummary() {
+  const pct = kfWrongState.total>0 ? Math.round(kfWrongState.score/kfWrongState.total*100) : 0;
+  const summaryEl = document.getElementById('kfWrongSummary');
+  if (!summaryEl) return;
+  summaryEl.style.display = 'block';
+  document.getElementById('kfWrongFinalScore').textContent = pct+'%';
+  const graduated = kfWrongState.questions.filter(q => !isInKfWrong(q.id)).length;
+  document.getElementById('kfWrongDetail').textContent =
+    `答对 ${kfWrongState.score} / ${kfWrongState.total} 题 · 本次毕业 ${graduated} 道`;
+  updateHomeKfWrongCount();
   window.scrollTo(0,0);
 }
 
@@ -1288,6 +1435,41 @@ document.body.addEventListener('click', function(e) {
   input.addEventListener('keydown', e => { if (e.key === 'Enter') tryEnter(); });
 })();
 
+// ==================== 重点填空错题本（独立存储，4次答对后毕业）====================
+function getKfWrongBook() {
+  try { return JSON.parse(localStorage.getItem('kfWrongBook') || '{}'); } catch(e) { return {}; }
+}
+function saveKfWrongBook(book) {
+  localStorage.setItem('kfWrongBook', JSON.stringify(book));
+}
+// 加入填空错题本（连续答对次数重置为0）
+function addToKfWrong(qid) {
+  const book = getKfWrongBook();
+  if (!(qid in book)) book[qid] = 0;
+  saveKfWrongBook(book);
+}
+// 答对一次，连续答对+1；达到4次则移除
+function kfWrongCorrect(qid) {
+  const book = getKfWrongBook();
+  if (!(qid in book)) return;
+  book[qid] = (book[qid] || 0) + 1;
+  if (book[qid] >= 4) {
+    delete book[qid];
+  }
+  saveKfWrongBook(book);
+}
+// 答错时重置连续答对次数
+function kfWrongReset(qid) {
+  const book = getKfWrongBook();
+  if (qid in book) { book[qid] = 0; saveKfWrongBook(book); }
+}
+function isInKfWrong(qid) {
+  return qid in getKfWrongBook();
+}
+function getKfWrongCount() {
+  return Object.keys(getKfWrongBook()).length;
+}
+
 // ==================== 重点填空模式 ====================
 let kfState = { filter:'all', questions:[], currentIndex:0, score:0, total:0, answered:false };
 
@@ -1324,22 +1506,22 @@ function renderKfQuestion() {
 }
 
 function buildKfQuestionHTML(q) {
-  // 将 sentence 中的 __BLANK__ 替换成 input
   let blankIdx = 0;
   const sentenceHTML = q.sentence.replace(/__BLANK__/g, () => {
     const i = blankIdx++;
-    // 估算输入框宽度（根据答案长度）
     const maxLen = Math.max(...q.blanks[i].map(a=>a.length));
     const width = Math.max(60, maxLen * 16) + 'px';
     return `<input class="blank-input" data-blank="${i}" style="width:${width}" placeholder="填写答案" autocomplete="off">`;
   });
+  const wrongBook = getKfWrongBook();
+  const wrongTag = (q.id in wrongBook)
+    ? `<span class="q-tag tag-wrong">错题 ${wrongBook[q.id]}/4</span>` : '';
   return `
     <div class="keyfill-card">
-      <span class="kf-tag">🔴 重点填空 · ${q.category}</span>
+      <span class="kf-tag">🔴 重点填空 · ${q.category}</span>${wrongTag}
       <div class="keyfill-sentence">${sentenceHTML}</div>
       <button class="keyfill-submit" data-action="submit-kf">提交答案</button>
       <div class="keyfill-answer-hint" id="kfHint"></div>
-      <div class="feedback" data-fb="keyfill"></div>
     </div>
     <button class="next-btn" data-action="next-kf" style="display:none;margin-top:4px;">下一题 →</button>
   `;
@@ -1381,7 +1563,13 @@ function submitKfQuestion() {
     hintEl.classList.add('visible');
   }
 
-  if (allCorrect) kfState.score++;
+  if (allCorrect) {
+    kfState.score++;
+    kfWrongCorrect(q.id); // 答对：错题本连续答对+1（满4次自动毕业）
+  } else {
+    addToKfWrong(q.id);   // 答错：加入错题本（已在则重置答对计数）
+    kfWrongReset(q.id);
+  }
   document.getElementById('kfScoreText').textContent = `得分：${kfState.score}`;
 
   // 显示下一题按钮
@@ -1415,12 +1603,19 @@ document.querySelectorAll('#kfFilterBar [data-kffilter]').forEach(btn => {
   });
 });
 
-// 扩展事件委托：支持重点填空的下一题和提交按钮
+// 扩展事件委托：支持重点填空的下一题、提交，以及填空错题练习
 document.body.addEventListener('click', function(e) {
   const btn = e.target.closest('[data-action]');
   if (!btn) return;
   if (btn.dataset.action === 'next-kf') { nextKfQuestion(); return; }
   if (btn.dataset.action === 'submit-kf') { submitKfQuestion(); return; }
+  if (btn.dataset.action === 'submit-kf-wrong') { submitKfWrongQuestion(); return; }
+  if (btn.dataset.action === 'next-kf-wrong') {
+    kfWrongState.currentIndex++;
+    renderKfWrongQuestion();
+    window.scrollTo(0,0);
+    return;
+  }
 });
 
 // ==================== 初始化 ====================
