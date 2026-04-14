@@ -1125,7 +1125,7 @@ function buildKfQuestionHTML(q) {
     <div class="keyfill-card">
       <span class="kf-tag">🔴 重点填空 · ${q.category}</span>
       <div class="keyfill-sentence">${sentenceHTML}</div>
-      <button class="keyfill-submit" onclick="submitKfQuestion()">提交答案</button>
+      <button class="keyfill-submit" data-action="submit-kf">提交答案</button>
       <div class="keyfill-answer-hint" id="kfHint"></div>
       <div class="feedback" data-fb="keyfill"></div>
     </div>
@@ -1154,7 +1154,8 @@ function submitKfQuestion() {
   });
 
   // 禁用提交
-  document.querySelector('.keyfill-submit').disabled = true;
+  const submitBtn = document.querySelector('[data-action="submit-kf"]');
+  if (submitBtn) submitBtn.disabled = true;
 
   // 显示提示/解析
   const hintEl = document.getElementById('kfHint');
@@ -1202,10 +1203,12 @@ document.querySelectorAll('#kfFilterBar [data-kffilter]').forEach(btn => {
   });
 });
 
-// 扩展事件委托：支持重点填空的下一题按钮
+// 扩展事件委托：支持重点填空的下一题和提交按钮
 document.body.addEventListener('click', function(e) {
-  const btn = e.target.closest('[data-action="next-kf"]');
-  if (btn) { nextKfQuestion(); return; }
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  if (btn.dataset.action === 'next-kf') { nextKfQuestion(); return; }
+  if (btn.dataset.action === 'submit-kf') { submitKfQuestion(); return; }
 });
 
 // ==================== 初始化 ====================
