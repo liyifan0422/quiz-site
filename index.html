@@ -1473,10 +1473,19 @@ function getKfWrongCount() {
 // ==================== 重点填空模式 ====================
 let kfState = { filter:'all', questions:[], currentIndex:0, score:0, total:0, answered:false };
 
+function sortKfByMemory(qs) {
+  const book = getKfWrongBook();
+  // 错题本中的题（按连续答对次数升序，0次在前）
+  const wrong = qs.filter(q => q.id in book).sort((a,b) => (book[a.id]||0) - (book[b.id]||0));
+  // 未进入错题本的题（随机）
+  const rest = shuffle(qs.filter(q => !(q.id in book)));
+  return [...wrong, ...rest];
+}
+
 function initKeyFill() {
   const f = kfState.filter;
   let qs = f==='all' ? [...KEY_FILL_QUESTIONS] : KEY_FILL_QUESTIONS.filter(q=>q.chapter===f);
-  kfState.questions = shuffle(qs);
+  kfState.questions = sortKfByMemory(qs);
   kfState.currentIndex = 0; kfState.score = 0; kfState.total = kfState.questions.length;
   kfState.answered = false;
   document.getElementById('kfSummary').classList.remove('visible');
